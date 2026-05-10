@@ -2,7 +2,7 @@
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
 import { createSignal } from "solid-js"
 import { unlinkSync, existsSync } from "node:fs"
-import { resolveConfig, type ResolvedConfig } from "./config.js"
+import { resolveConfig } from "./config.js"
 import { startRecording, stopRecordingGraceful, killRecording, type RecorderHandle } from "./audio-recorder.js"
 import { transcribeAudio } from "./transcriber.js"
 import { RecordingIndicator } from "./ui.js"
@@ -13,16 +13,16 @@ function tmpFile(): string {
   return `/tmp/opencode-voice-${process.pid}-${Date.now()}.flac`
 }
 
-function showToast(api: TuiPluginApi, variant: "success" | "info" | "error" | "warning", message: string, duration = 3000) {
-  api.ui.toast({ variant, title: "Open Voice", message, duration })
-}
-
 const tui: TuiPlugin = async (api, options) => {
-  const config: ResolvedConfig = resolveConfig(options)
+  const config = resolveConfig(options)
+
+  const toast = (variant: "success" | "info" | "error" | "warning", message: string, duration = 3000) => {
+    config.showToast && api.ui.toast({ variant, title: "Open Voice", message, duration })
+  }
   let apiKey = process.env.GROQ_API_KEY ?? ""
 
   if (!apiKey) {
-    showToast(api, "warning", "GROQ_API_KEY not set — voice disabled", 5000)
+    toast("warning", "GROQ_API_KEY not set — voice disabled", 5000)
   }
 
   let recorder: RecorderHandle | undefined
@@ -74,7 +74,7 @@ const tui: TuiPlugin = async (api, options) => {
 
   const toggle = async () => {
     if (!apiKey) {
-      showToast(api, "error", "Set GROQ_API_KEY to enable voice input")
+      toast("error", "Set GROQ_API_KEY to enable voice input")
       return
     }
 
@@ -83,14 +83,15 @@ const tui: TuiPlugin = async (api, options) => {
       setVoiceState("recording")
       setElapsed(0)
       startElapsedTimer()
-      showToast(api, "info", "Recording... Press <leader>space to stop", 3000)
+      toast("info", `Recording...\nPress ${config.keybind} to stop\nPress ${config.keybind_cancel} to cancel
+        `, 3000)
 
       try {
         recorder = startRecording(f, config.pulseDevice)
       } catch (err) {
         stopElapsedTimer()
         setVoiceState("error")
-        showToast(api, "error", `Failed to start ffmpeg: ${err instanceof Error ? err.message : String(err)}`)
+        toast("error", `Failed to start ffmpeg: ${err instanceof Error ? err.message : String(err)}`)
         setTimeout(() => setVoiceState("idle"), 2000)
         return
       }
@@ -101,7 +102,7 @@ const tui: TuiPlugin = async (api, options) => {
           recorder = undefined
           stopElapsedTimer()
           setVoiceState("error")
-          showToast(api, "error", `ffmpeg error: ${err.message}`)
+          toast("error", `ffmpeg error: ${err.message}`)
           setTimeout(() => setVoiceState("idle"), 2000)
         }
       })
@@ -117,7 +118,7 @@ const tui: TuiPlugin = async (api, options) => {
       recorder = undefined
       stopElapsedTimer()
       setVoiceState("transcribing")
-      showToast(api, "info", "Transcribing...", 2000)
+      toast("info", "Transcribing...", 2000)
 
       if (handle) {
         await stopRecordingGraceful(handle)
@@ -125,7 +126,7 @@ const tui: TuiPlugin = async (api, options) => {
 
       if (!f || !existsSync(f)) {
         setVoiceState("error")
-        showToast(api, "error", "Recording file not found")
+        toast("error", "Recording file not found")
         setTimeout(() => setVoiceState("idle"), 2000)
         return
       }
@@ -135,13 +136,13 @@ const tui: TuiPlugin = async (api, options) => {
         if (text.trim()) {
           await appendToPrompt(text)
           const preview = text.trim().slice(0, 40)
-          showToast(api, "success", `"${preview}${text.length > 40 ? "..." : ""}"`)
+          toast("success", `"${preview}${text.length > 40 ? "..." : ""}"`)
         } else {
-          showToast(api, "info", "No speech detected")
+          toast("info", "No speech detected")
         }
       } catch (err) {
         setVoiceState("error")
-        showToast(api, "error", `Transcription failed: ${err instanceof Error ? err.message : String(err)}`)
+        toast("error", `Transcription failed: ${err instanceof Error ? err.message : String(err)}`)
         setTimeout(() => setVoiceState("idle"), 3000)
         return
       }
@@ -158,7 +159,7 @@ const tui: TuiPlugin = async (api, options) => {
     if (voiceState() !== "recording") return
     cleanup()
     setVoiceState("idle")
-    showToast(api, "info", "Recording cancelled")
+    toast("info", "Recording cancelled")
   }
 
 
@@ -204,7 +205,7 @@ const tui: TuiPlugin = async (api, options) => {
   })
 }
 
-const plugin: TuiPluginModule= {
+const plugin: TuiPluginModule = {
   id: "opencode-open-voice",
   tui,
 }
