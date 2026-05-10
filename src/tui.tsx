@@ -184,6 +184,7 @@ const tui: TuiPlugin = async (api, options) => {
     ],
     bindings: [
       { key: config.keybind, cmd: "voice.toggle", desc: "Toggle voice input" },
+      { key: config.keybind_cancel, cmd: "voice.cancel", desc: "Cancel voice recording" },
     ],
   })
 
