@@ -6,14 +6,14 @@
   "private": true,
   "description": "Voice-to-prompt plugin for OpenCode. Record audio and transcribe via Groq Whisper.",
   "exports": {
-    "./tui": "./src/tui.tsx",
-    ".": "./src/tui.tsx"
+    "./tui": "./src/tui.tsx"
   },
   "engines": {
     "opencode": ">=1.14.41"
   },
   "dependencies": {
     "@opentui/core": "^0.2.4",
+    "@opentui/keymap": "^0.2.4",
     "@opentui/solid": "^0.2.4",
     "solid-js": "^1.9.10"
   },

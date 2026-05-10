@@ -13,12 +13,6 @@ function tmpFile(): string {
   return `/tmp/opencode-voice-${process.pid}-${Date.now()}.mp3`
 }
 
-function formatElapsed(seconds: number): string {
-  const m = Math.floor(seconds / 60).toString().padStart(2, "0")
-  const s = (seconds % 60).toString().padStart(2, "0")
-  return `${m}:${s}`
-}
-
 function showToast(api: TuiPluginApi, variant: "success" | "info" | "error" | "warning", message: string, duration = 3000) {
   api.ui.toast({ variant, title: "Open Voice", message, duration })
 }
@@ -33,11 +27,10 @@ const tui: TuiPlugin = async (api, options) => {
 
   let recorder: RecorderHandle | undefined
   let elapsedTimer: ReturnType<typeof setInterval> | undefined
-  let disposeCommands: (() => void) | undefined
 
   const [voiceState, setVoiceState] = createSignal<"idle" | "recording" | "transcribing" | "error">("idle")
   const [elapsed, setElapsed] = createSignal(0)
-  const [autoSubmit, setAutoSubmit] = createSignal(
+  const [autoSubmit] = createSignal(
     api.kv.get(KV_AUTOSUBMIT, config.autoSubmit),
   )
 
@@ -54,7 +47,7 @@ const tui: TuiPlugin = async (api, options) => {
     }
     const f = currentTmpFile()
     if (f && existsSync(f)) {
-      try { unlinkSync(f) } catch {}
+      try { unlinkSync(f) } catch { }
     }
   }
 
@@ -153,7 +146,7 @@ const tui: TuiPlugin = async (api, options) => {
         return
       }
 
-      try { unlinkSync(f) } catch {}
+      try { unlinkSync(f) } catch { }
       setVoiceState("idle")
     } else if (voiceState() === "transcribing" || voiceState() === "error") {
       cleanup()
@@ -168,48 +161,31 @@ const tui: TuiPlugin = async (api, options) => {
     showToast(api, "info", "Recording cancelled")
   }
 
-  const compat = api as TuiPluginApi & {
-    keymap?: {
-      registerLayer(input: {
-        commands: {
-          name: string
-          title: string
-          category: string
-          namespace: string
-          slashName: string
-          run: () => void
-        }[]
-        bindings?: { key: string; cmd: string; desc: string }[]
-      }): () => void
-    }
-  }
 
-  if (compat.keymap) {
-    const dispose = compat.keymap.registerLayer({
-      commands: [
-        {
-          name: "voice.toggle",
-          title: "Toggle voice input",
-          category: "Plugin",
-          namespace: "palette",
-          slashName: "voice",
-          run: toggle,
-        },
-        {
-          name: "voice.cancel",
-          title: "Cancel voice recording",
-          category: "Plugin",
-          namespace: "palette",
-          slashName: "voice-cancel",
-          run: cancel,
-        },
-      ],
-      bindings: [
-        { key: config.keybind, cmd: "voice.toggle", desc: "Toggle voice input" },
-      ],
-    })
-    disposeCommands = dispose
-  }
+
+  api.keymap.registerLayer({
+    commands: [
+      {
+        name: "voice.toggle",
+        title: "Toggle voice input",
+        category: "Plugin",
+        namespace: "palette",
+        slashName: "voice",
+        run: toggle,
+      },
+      {
+        name: "voice.cancel",
+        title: "Cancel voice recording",
+        category: "Plugin",
+        namespace: "palette",
+        slashName: "voice-cancel",
+        run: cancel,
+      },
+    ],
+    bindings: [
+      { key: config.keybind, cmd: "voice.toggle", desc: "Toggle voice input" },
+    ],
+  })
 
   api.slots.register({
     slots: {
@@ -224,11 +200,10 @@ const tui: TuiPlugin = async (api, options) => {
 
   api.lifecycle.onDispose(() => {
     cleanup()
-    disposeCommands?.()
   })
 }
 
-const plugin: TuiPluginModule & { id: string } = {
+const plugin: TuiPluginModule= {
   id: "opencode-open-voice",
   tui,
 }
