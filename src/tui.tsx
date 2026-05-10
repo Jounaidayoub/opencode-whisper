@@ -10,7 +10,7 @@ import { RecordingIndicator } from "./ui.js"
 const KV_AUTOSUBMIT = "open-voice.autoSubmit"
 
 function tmpFile(): string {
-  return `/tmp/opencode-voice-${process.pid}-${Date.now()}.mp3`
+  return `/tmp/opencode-voice-${process.pid}-${Date.now()}.flac`
 }
 
 function showToast(api: TuiPluginApi, variant: "success" | "info" | "error" | "warning", message: string, duration = 3000) {

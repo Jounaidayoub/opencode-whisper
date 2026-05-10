@@ -11,13 +11,14 @@ export async function transcribeAudio(
   apiKey: string,
 ): Promise<string> {
   const fileBuffer = readFileSync(tmpFile)
-  const fileName = tmpFile.split("/").pop() ?? "recording.mp3"
+  const fileName = tmpFile.split("/").pop() ?? "recording.flac"
 
   const formData = new FormData()
   formData.append("file", new Blob([fileBuffer]), fileName)
   formData.append("model", model)
   formData.append("temperature", "0")
   formData.append("response_format", "verbose_json")
+  // formData.append("language", "en") 
 
   const response = await fetch(apiUrl, {
     method: "POST",

@@ -9,6 +9,9 @@ export function startRecording(tmpFile: string, pulseDevice: string): RecorderHa
   const child = spawn("ffmpeg", [
     "-f", "pulse",
     "-i", pulseDevice,
+    "-ar", "16000",
+    "-ac", "1",
+    "-c:a", "flac",
     "-y",
     tmpFile,
   ], {
