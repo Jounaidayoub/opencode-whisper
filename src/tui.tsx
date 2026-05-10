@@ -2,10 +2,10 @@
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
 import { createSignal } from "solid-js"
 import { unlinkSync, existsSync } from "node:fs"
-import { resolveConfig } from "./config.js"
-import { startRecording, stopRecordingGraceful, killRecording, type RecorderHandle } from "./audio-recorder.js"
-import { transcribeAudio } from "./transcriber.js"
-import { RecordingIndicator } from "./ui.js"
+import { resolveConfig } from "./config"
+import { startRecording, stopRecordingGraceful, killRecording, type RecorderHandle } from "./audio-recorder"
+import { transcribeAudio } from "./transcriber"
+import { RecordingIndicator } from "./ui"  
 
 const KV_AUTOSUBMIT = "open-voice.autoSubmit"
 

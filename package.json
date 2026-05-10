@@ -3,11 +3,18 @@
   "name": "opencode-open-voice",
   "version": "0.1.0",
   "type": "module",
-  "private": true,
+  "scripts": {
+    "build": "bun run scripts/build.ts",
+    "prepack": "bun run build"
+  },
+  "private": false,
   "description": "Voice-to-prompt plugin for OpenCode. Record audio and transcribe via Groq Whisper.",
   "exports": {
-    "./tui": "./src/tui.tsx"
+    "./tui": "./dist/tui.js"
   },
+  "files": [
+    "dist"
+  ],
   "engines": {
     "opencode": ">=1.14.41"
   },
@@ -22,7 +29,8 @@
   },
   "devDependencies": {
     "@opencode-ai/plugin": "^1.14.41",
-    "@types/node": "^24.12.2",
+    "@types/bun": "^1.3.13",
+    "@types/node": "^25.6.2",
     "typescript": "^5.8.2"
   }
 }
