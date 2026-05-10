@@ -190,11 +190,11 @@ const tui: TuiPlugin = async (api, options) => {
   api.slots.register({
     slots: {
       home_prompt_right() {
-        return <RecordingIndicator api={api} state={voiceState} elapsed={elapsed} />
+        return <RecordingIndicator api={api} state={voiceState} elapsed={elapsed} keybind={config.keybind} />
       },
       session_prompt_right() {
-        return <RecordingIndicator api={api} state={voiceState} elapsed={elapsed} />
-      },
+        return <RecordingIndicator api={api} state={voiceState} elapsed={elapsed} keybind={config.keybind} />
+      }
     },
   })
 
