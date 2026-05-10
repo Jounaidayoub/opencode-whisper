@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "opencode-open-voice",
+      "name": "opencode-whisper",
       "dependencies": {
         "@opentui/core": "^0.2.4",
         "@opentui/keymap": "^0.2.4",
