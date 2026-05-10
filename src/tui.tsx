@@ -18,7 +18,7 @@ const tui: TuiPlugin = async (api, options) => {
 
   const toast = (variant: "success" | "info" | "error" | "warning", message: string, duration = 3000) => {
     if (!config.showToast && ["success", "info"].includes(variant)) return
-    api.ui.toast({ variant, title: "Open Voice", message, duration })
+    api.ui.toast({ variant, title: "Opencode-Whisper", message, duration })
   }
   let apiKey = process.env.GROQ_API_KEY ?? ""
 
