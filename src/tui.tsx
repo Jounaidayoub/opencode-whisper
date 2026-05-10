@@ -206,7 +206,7 @@ const tui: TuiPlugin = async (api, options) => {
 }
 
 const plugin: TuiPluginModule = {
-  id: "opencode-open-voice",
+  id: "opencode-whisper",
   tui,
 }
 

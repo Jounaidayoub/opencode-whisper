@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "open-voice",
+  "name": "opencode-whisper",
   "version": "0.1.0",
   "type": "module",
   "scripts": {
